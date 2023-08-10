@@ -15,6 +15,11 @@
 <link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css'>
 <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
 <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
+<style type="text/css">
+table td {
+	vertical-align: middle !important;
+}
+</style>
 <script type="text/javascript"> 
   $(document).ready(function(){
 	 <c:if test="${!empty msg}">
@@ -38,6 +43,54 @@
   } 
   function logout(){
 	  location.href="<c:url value='/memberLogout.do'/>";  // /MVC06/memberList.do
+  }
+  function memberList(){
+	  //var html=$("#collapse1 .panel-body").html();
+	  //alert(html);
+	  $.ajax({
+		 url : "<c:url value='/memberAjaxList.do'/>", // 서버로 요청
+		 type : "get",
+		 dataType : "json",
+		 success : resultHtml, //<---------------------- 회원리스트로 받기([{    },{    },{    }])
+		 error : function(){ error("error");   }		  
+	  });	 
+  }
+  function resultHtml(data){	  
+	  var html="<table class='table table-hover'>";
+	  html+="<tr>";
+	  html+="<th>번호</th>";
+	  html+="<th>아이디</th>";
+	  html+="<th>비밀번호</th>";
+	  html+="<th>이름</th>";
+	  html+="<th>나이</th>";
+	  html+="<th>이메일</th>";
+	  html+="<th>전화번호</th>";
+	  html+="<th>삭제</th>";
+	  html+="</tr>";	
+	  // 반복문 처리 - [{    },{    },{    }]
+	  $.each(data, function(index, obj){
+		  html+="<tr>";
+		  html+="<td>"+obj.num+"</td>";
+		  html+="<td>"+obj.id+"</td>";
+		  html+="<td>"+obj.pass+"</td>";
+		  html+="<td>"+obj.name+"</td>";
+		  html+="<td>"+obj.age+"</td>";
+		  html+="<td>"+obj.email+"</td>";
+		  html+="<td>"+obj.phone+"</td>";		  
+		  html+="<td><input type='button' value='삭제' class='btn btn-warning' onclick='delFn("+obj.num+")'></td>";
+		  html+="</tr>";
+	  });	  
+	  html+="</table>";	  
+	  $("#collapse1 .panel-body").html(html);	  
+  }
+  function delFn(num){
+	  $.ajax({
+		  url : "<c:url value='/memberAjaxDelete.do'/>",
+		  type : "get",
+		  data : {"num" : num},
+		  success : memberList,
+		  error : function(){ alert("error");  }
+	  });
   }
 </script>
 </head>
@@ -74,6 +127,7 @@
 								<th>나이</th>
 								<th>이메일</th>
 								<th>전화번호</th>
+								<th>이미지</th>
 								<th>삭제</th>
 							</tr>
 						</thead>
@@ -89,6 +143,11 @@
 									<td>${vo.age}</td>
 									<td>${vo.email}</td>
 									<td>${vo.phone}</td>
+									<td>
+<%-- 										<c:if test="${vo.filename !=null && vo.filename !=''}">
+											<img src="<c:out value='file_repo/${vo.filename}'/>" width="60px" height="60px">
+										</c:if> --%>
+									</td>
 									<c:if test="${sessionScope.userId==vo.id}">
 										<td>
 											<input type="button" value="삭제" class="btn btn-warning" onclick="deleteFn(${vo.num})">
@@ -111,6 +170,19 @@
 				</div>
 			</div>
 			<div class="panel-footer">회원관리 ERP System(admin@bit.com)</div>
+		</div>
+		<div class="panel-group">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" href="#collapse1" onclick="memberList()">회원리스트보기</a>
+					</h4>
+				</div>
+				<div id="collapse1" class="panel-collapse collapse">
+					<div class="panel-body">Panel Body</div>
+					<div class="panel-footer">Panel Footer</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>

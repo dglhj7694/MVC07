@@ -16,34 +16,9 @@
 		document.form1.action = "<c:url value='/memberInsert.do'/>";
 		document.form1.submit();
 	}
-	function add2() {
-		//첨부파일
-		if ($("#file").val() != '') {
-			var formData = new FormData();
-			formData.append("file", $("input[name=file]")[0].files[0]);
-			$.ajax({
-				url : "<c:url value='/fileAdd.do'/>",
-				type : "post",
-				data : formData,
-				processData : false,
-				contentType : false,
-				succcess : function(data) {
-					$('#filename').val(data);
-					document.form1.action = "<c:url value='/memberInsert.do'/>"
-					document.form1.submit();
-				},
-				error : function() {
-					alert("error");
-				}
-			});
-		} else {
-
-		}
-	}
 	function frmreset() {
 		document.form1.reset();
 	}
-
 	function doublecheck() {
 		if ($("#id").val() == '') {
 			alert("아이디를 입력하세요.");
@@ -72,6 +47,32 @@
 			$("#id").focus();
 		}
 	}
+	function add2() {
+		if ($("#file").val() != '') { // 파일이 첨부가 된 경우...
+			var formData = new FormData();
+			formData.append("file", $("input[name=file]")[0].files[0]);
+			$
+					.ajax({
+						url : "<c:url value='/fileAdd.do'/>", // fileAdd.do(파일업로드)
+						type : "post",
+						data : formData,
+						processData : false,
+						contentType : false,
+						success : function(data) { //업로드된 실재파일 이름을 전달 받기
+							/* alert(data); */
+							$('#filename').val(data);
+							document.form1.action = "<c:url value='/memberInsert.do'/>?mode=fadd"; // text데이터를 저장하는 부분
+							document.form1.submit();//id, pass, name, age, email, phone, filename
+						},
+						error : function() {
+							alert("error");
+						}
+					});
+		} else { // 파일이 첨부 되지 않은 경우...
+			document.form1.action = "<c:url value='/memberInsert.do'/>?mode=add";
+			document.form1.submit();//id, pass, name, age, email, phone, X
+		}
+	}
 </script>
 </head>
 <body>
@@ -94,7 +95,7 @@
 							<table>
 								<tr>
 									<td>
-										<input type="text" class="form-control" id="id" name="id" placeholder="아이디를 입력하세요" style="width: 30%">
+										<input type="text" class="form-control" id="id" name="id" placeholder="아이디를 입력하세요">
 									</td>
 									<td>
 										<input type="button" value="중복체크" onclick="doublecheck()" class="btn btn-warning">

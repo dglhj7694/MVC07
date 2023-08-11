@@ -11,10 +11,10 @@ create table member(
 );
 -- SQL(CRUD), JDBC
 -- 검색
-select * from member;
+select * from member1;
 
 -- insert(저장)
-insert into member(id, pass, name, age, email, phone)
+insert into member1(id, pass, name, age, email, phone)
 values('admin','admin','관리자',40,'bit@naver.com','010-1111-1111');
 
 -- update(수정)

@@ -144,9 +144,9 @@ table td {
 									<td>${vo.email}</td>
 									<td>${vo.phone}</td>
 									<td>
-<%-- 										<c:if test="${vo.filename !=null && vo.filename !=''}">
+										<c:if test="${vo.filename !=null && vo.filename !=''}">
 											<img src="<c:out value='file_repo/${vo.filename}'/>" width="60px" height="60px">
-										</c:if> --%>
+										</c:if>
 									</td>
 									<c:if test="${sessionScope.userId==vo.id}">
 										<td>

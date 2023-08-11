@@ -16,11 +16,40 @@
 <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js'></script>
 <script type="text/javascript">
 	function update() {
-		document.form1.action = "<c:url value='/memberUpdate.do'/>";
-		document.form1.submit();
+		if ($("#file").val() != '') { // 파일이 첨부가 된 경우...
+			var formData = new FormData();
+			formData.append("file", $("input[name=file]")[0].files[0]);
+			$
+					.ajax({
+						url : "<c:url value='/fileAdd.do'/>", // fileAdd.do(파일업로드)
+						type : "post",
+						data : formData,
+						processData : false,
+						contentType : false,
+						success : function(data) { //업로드된 실재파일 이름을 전달 받기
+							// alert(data);
+							$('#filename').val(data);
+							document.form1.action = "<c:url value='/memberUpdate.do'/>?mode=fupdate"; // text데이터를 저장하는 부분
+							document.form1.submit();//num, age, email, phone, filename
+						},
+						error : function() {
+							alert("error");
+						}
+					});
+		} else { // 파일이 첨부 되지 않은 경우...
+			document.form1.action = "<c:url value='/memberUpdate.do'/>?mode=update";
+			document.form1.submit();//num, age, email, phone, X
+		}
 	}
 	function frmreset() {
 		document.form1.reset();
+	}
+	function getFile(filename) {
+		location.href = "<c:url value='/fileGet.do'/>?filename=" + filename;
+	}
+	function delFile(num, filename) {
+		location.href = "<c:url value='/fileDel.do'/>?num=" + num
+				+ "&filename=" + filename;
 	}
 </script>
 </head>
@@ -29,8 +58,9 @@
 		<h2>상세화면</h2>
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<c:if test="${sessionScope.userId!=null && sessionScope.userId!=''}">
-					<label>${sessionScope.userName}님이 로그인 하셨습니다.</label>
+				<c:if test="${sessionScope.userId!=null && sessionScope.userId!='' && sessionScope.userId==vo.id}">
+					<label> <img src="<c:out value='file_repo/${vo.filename}'/>" width="60px" height="60px" /> ${sessionScope.userName}님이 로그인 하셨습니다.
+					</label>
 				</c:if>
 				<c:if test="${sessionScope.userId==null || sessionScope.userId==''}">
 					<label>안녕하세요</label>
@@ -38,7 +68,7 @@
 			</div>
 			<div class="panel-body">
 				<form id="form1" name="form1" class="form-horizontal" method="post">
-					<input type="hidden" name="num" value="${vo.num}" />
+					<input type="hidden" name="num" value="${vo.num}" /> <input type="hidden" name="filename" id="filename" value="" />
 					<div class="form-group">
 						<label class="control-label col-sm-2">번호:</label>
 						<div class="col-sm-10">
@@ -84,12 +114,12 @@
 					<div class="form-group">
 						<label class="control-label col-sm-2">첨부파일:</label>
 						<div class="col-sm-10">
-							<input type="file" class="control-label" id="file" name="file">
-							<c:if test="${vo.filename != null && vo.filename != ''}">
-								<c:out value="${vo.filename }" />
+							<input type="file" id="file" name="file">
+							<c:if test="${vo.filename !=null && vo.filename !=''}">
+								<a href="javascript:getFile('${vo.filename}')"><c:out value='${vo.filename}' /></a>
 							</c:if>
-							<c:if test="${sessionScope.userId != null && sessionScope.userId == vo.id && vo.filename != '' && vo.filename != null}">
-								<span class="glyphicon glyphicon-remove"></span>
+							<c:if test="${sessionScope.userId !=null && sessionScope.userId==vo.id && vo.filename !=null && vo.filename!=''}">
+								<a href="javascript:delFile('${vo.num}','${vo.filename}')"><span class="glyphicon glyphicon-remove"></span></a>
 							</c:if>
 						</div>
 					</div>
